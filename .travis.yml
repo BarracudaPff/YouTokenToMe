@@ -13,7 +13,7 @@ jobs:
       python: "3.7"
       install: pip install black
       script: black --check youtokentome
-    
+
     - stage: test
       name: "Python unit tests"
       language: python
@@ -61,8 +61,12 @@ script:
   - cibuildwheel --output-dir wheelhouse
   - ls -l wheelhouse
   - python3 -m pip list
-  - |
-    if [[ $TRAVIS_TAG ]]; then
-      rm -rf dist && python3 setup.py sdist
-      twine upload -u __token__ -p $PYPI_TOKEN --skip-existing dist/*.tar.gz wheelhouse/*.whl
-    fi
+
+deploy:
+  provider: releases
+  api_key: $OCTOKIT_API_ENDPOINT
+  file_glob: true
+  file: wheelhouse/*
+  skip_cleanup: true
+  on:
+    tags: true
